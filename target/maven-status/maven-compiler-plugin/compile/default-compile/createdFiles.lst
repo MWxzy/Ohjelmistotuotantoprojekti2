@@ -3,6 +3,7 @@ Launcher.class
 TempConverterApp.class
 database\TemperatureUnitDAO.class
 I18n$Utf8Control.class
+TempConverterController.class
 Language.class
 database\TempRecordDAO.class
 I18n.class

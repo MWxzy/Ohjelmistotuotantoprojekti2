@@ -4,42 +4,43 @@
 <span class="fc" id="L4">    ENGLISH(Locale.US, &quot;English&quot;),</span>
 <span class="fc" id="L5">    FINNISH(Locale.forLanguageTag(&quot;fi-FI&quot;), &quot;Suomi&quot;),</span>
 <span class="fc" id="L6">    SWEDISH(Locale.forLanguageTag(&quot;sv-SE&quot;), &quot;Svenska&quot;),</span>
-<span class="fc" id="L7">    JAPANESE(Locale.JAPAN, &quot;日本語&quot;);</span>
+<span class="fc" id="L7">    JAPANESE(Locale.JAPAN, &quot;日本語&quot;),</span>
+<span class="fc" id="L8">    ARABIC(Locale.forLanguageTag(&quot;ar-SA&quot;), &quot;العربية&quot;);</span>
 
     private final Locale locale;
     private final String displayName;
 
-<span class="fc" id="L12">    Language(Locale locale, String displayName) {</span>
-<span class="fc" id="L13">        this.locale = locale;</span>
-<span class="fc" id="L14">        this.displayName = displayName;</span>
-<span class="fc" id="L15">    }</span>
+<span class="fc" id="L13">    Language(Locale locale, String displayName) {</span>
+<span class="fc" id="L14">        this.locale = locale;</span>
+<span class="fc" id="L15">        this.displayName = displayName;</span>
+<span class="fc" id="L16">    }</span>
 
     public Locale getLocale() {
-<span class="fc" id="L18">        return locale;</span>
+<span class="fc" id="L19">        return locale;</span>
     }
 
     public String getDisplayName() {
-<span class="fc" id="L22">        return displayName;</span>
+<span class="fc" id="L23">        return displayName;</span>
     }
 
     public static Language fromCode(String code) {
-<span class="fc bfc" id="L26" title="All 4 branches covered.">        if (code == null || code.isBlank()) {</span>
-<span class="fc" id="L27">            return null;</span>
+<span class="fc bfc" id="L27" title="All 4 branches covered.">        if (code == null || code.isBlank()) {</span>
+<span class="fc" id="L28">            return null;</span>
         }
 
-<span class="fc" id="L30">        String normalized = code.trim().replace('_', '-').toLowerCase(Locale.ROOT);</span>
-<span class="fc bfc" id="L31" title="All 2 branches covered.">        for (Language language : values()) {</span>
-<span class="fc" id="L32">            String tag = language.locale.toLanguageTag().toLowerCase(Locale.ROOT);</span>
-<span class="fc bfc" id="L33" title="All 4 branches covered.">            if (tag.equals(normalized) || language.locale.getLanguage().equals(normalized)) {</span>
-<span class="fc" id="L34">                return language;</span>
+<span class="fc" id="L31">        String normalized = code.trim().replace('_', '-').toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        for (Language language : values()) {</span>
+<span class="fc" id="L33">            String tag = language.locale.toLanguageTag().toLowerCase(Locale.ROOT);</span>
+<span class="fc bfc" id="L34" title="All 4 branches covered.">            if (tag.equals(normalized) || language.locale.getLanguage().equals(normalized)) {</span>
+<span class="fc" id="L35">                return language;</span>
             }
         }
-<span class="fc" id="L37">        return null;</span>
+<span class="fc" id="L38">        return null;</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L42">        return displayName;</span>
+<span class="fc" id="L43">        return displayName;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

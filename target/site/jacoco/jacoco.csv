@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-OTP1_inclass1_assignment,default,Language,0,108,0,10,0,20,0,11,0,6
+OTP1_inclass1_assignment,default,Language,0,117,0,10,0,21,0,11,0,6
 OTP1_inclass1_assignment,default,I18n.Utf8Control,0,43,0,4,0,9,0,3,0,1
 OTP1_inclass1_assignment,default,TemperatureConverter,0,35,0,4,0,5,0,7,0,5
 OTP1_inclass1_assignment,default,I18n,0,33,0,0,0,8,0,7,0,7
