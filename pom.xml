@@ -15,7 +15,6 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
-        <!-- Default to Windows JavaFX for local runs. Override with -Djavafx.platform=linux for Docker builds. -->
         <javafx.platform>win</javafx.platform>
     </properties>
 
@@ -90,7 +89,6 @@
                 </executions>
             </plugin>
 
-            <!-- Used for local `mvn javafx:run` only. Not needed for Docker. -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -100,7 +98,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Builds a fat JAR with all dependencies + JavaFX bundled -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

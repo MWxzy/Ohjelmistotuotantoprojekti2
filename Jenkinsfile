@@ -31,7 +31,6 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // --no-cache ensures the multi-stage build reruns inside Docker
                 bat "docker build --no-cache -t ${env.DOCKER_IMAGE} ."
             }
         }
