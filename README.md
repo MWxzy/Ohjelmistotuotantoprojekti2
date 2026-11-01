@@ -395,6 +395,10 @@ The `docs` directory contains screenshots produced from the final build:
 
 ![Japanese localization](docs/localization-ja.png)
 
+### Minikube cluster and running deployment
+
+![Minikube status and running pod](docs/kubernetes-status.png)
+
 ### Application deployed with Minikube and shown through Xming
 
 ![Kubernetes deployment running through Xming](docs/kubernetes-xming.png)
@@ -417,6 +421,7 @@ The `docs` directory contains screenshots produced from the final build:
 - Docker Hub image: `junkkari/temperature-converter-gui:latest`
 - Docker Hub page: <https://hub.docker.com/r/junkkari/temperature-converter-gui>
 - Xming screenshots: `docs/docker-xming-ar.png` and `docs/kubernetes-xming.png`
+- Minikube verification screenshot: `docs/kubernetes-status.png`
 - Localization screenshots: `docs/localization-ar.png` and `docs/localization-ja.png`
 - Test and coverage screenshots: `docs/surefire-tests.png`, `docs/jacoco-coverage.png`, and `docs/jacoco-default-package.png`
 - Kubernetes manifest: `temperature-converter.yaml`
@@ -434,6 +439,7 @@ The Docker Hub image is published by the Jenkins pipeline using the `dockerhub-c
 │   ├── docker-xming-ar.png
 │   ├── jacoco-coverage.png
 │   ├── jacoco-default-package.png
+│   ├── kubernetes-status.png
 │   ├── kubernetes-xming.png
 │   ├── localization-ar.png
 │   ├── localization-ja.png
