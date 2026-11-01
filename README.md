@@ -342,13 +342,13 @@ The Docker build runs the unit tests, generates the JaCoCo report, and verifies 
 Run the container with XMing on Windows. Start XMing first, allow client connections, and then run:
 
 ```bash
-docker run --rm -e DISPLAY=host.docker.internal:0.0 temperature-converter-gui
+docker run --rm -e DISPLAY=host.docker.internal:0.0 -e JAVA_TOOL_OPTIONS='-Dprism.order=sw' temperature-converter-gui
 ```
 
 On Linux, use the X11 socket:
 
 ```bash
-docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix temperature-converter-gui
+docker run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -e JAVA_TOOL_OPTIONS='-Dprism.order=sw' temperature-converter-gui
 ```
 
 The Docker image uses Java 17 and installs the native libraries required by JavaFX. The runtime container uses a UTF-8 locale for the localized texts.
