@@ -4,7 +4,8 @@ public enum Language {
     ENGLISH(Locale.US, "English"),
     FINNISH(Locale.forLanguageTag("fi-FI"), "Suomi"),
     SWEDISH(Locale.forLanguageTag("sv-SE"), "Svenska"),
-    JAPANESE(Locale.JAPAN, "日本語");
+    JAPANESE(Locale.JAPAN, "日本語"),
+    ARABIC(Locale.forLanguageTag("ar-SA"), "العربية");
 
     private final Locale locale;
     private final String displayName;

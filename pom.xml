@@ -142,6 +142,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>TempConverterApp*</exclude>
+                                <exclude>TempConverterController*</exclude>
                                 <exclude>Launcher*</exclude>
                             </excludes>
                         </configuration>

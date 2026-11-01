@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="root"
+      alignment="CENTER"
+      spacing="18"
+      style="-fx-padding: 24;">
+
+    <Label text="%app.title"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="12" alignment="CENTER">
+        <Label text="%language.content"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="0"/>
+        <ComboBox fx:id="languageCombo"
+                  prefWidth="190"
+                  GridPane.columnIndex="1"
+                  GridPane.rowIndex="0"/>
+
+        <Label text="%label.value"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="1"/>
+        <TextField fx:id="valueField"
+                   promptText="%prompt.enterValue"
+                   prefWidth="190"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="1"/>
+
+        <Label text="%label.from"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="2"/>
+        <ComboBox fx:id="fromUnit"
+                  prefWidth="190"
+                  GridPane.columnIndex="1"
+                  GridPane.rowIndex="2"/>
+
+        <Label text="%label.to"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="3"/>
+        <ComboBox fx:id="toUnit"
+                  prefWidth="190"
+                  GridPane.columnIndex="1"
+                  GridPane.rowIndex="3"/>
+
+        <Button fx:id="convertButton"
+                text="%button.convert"
+                onAction="#handleConvert"
+                prefWidth="190"
+                GridPane.columnIndex="1"
+                GridPane.rowIndex="4"/>
+
+        <Label fx:id="resultLabel"
+               text="%label.result"
+               style="-fx-font-size: 14px;"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="5"
+               GridPane.columnSpan="2"/>
+    </GridPane>
+</VBox>

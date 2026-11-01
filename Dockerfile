@@ -16,11 +16,22 @@ ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 
 RUN apt-get update && apt-get install -y \
+    fontconfig \
+    fonts-dejavu-core \
+    fonts-noto-core \
+    fonts-noto-cjk \
+    libgl1 \
+    libglx0 \
     libgtk-3-0 \
-    libxtst6 \
-    libxrender1 \
-    libxi6 \
+    libxcursor1 \
     libxext6 \
+    libxfixes3 \
+    libxi6 \
+    libxinerama1 \
+    libxrandr2 \
+    libxrender1 \
+    libxtst6 \
+    libxxf86vm1 \
     libx11-6 \
     && rm -rf /var/lib/apt/lists/*
 

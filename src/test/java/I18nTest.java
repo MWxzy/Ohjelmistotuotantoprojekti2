@@ -16,6 +16,7 @@ class I18nTest {
 
     private static final String[] REQUIRED_KEYS = {
             "app.title",
+            "language.content",
             "label.value",
             "label.from",
             "label.to",
@@ -53,7 +54,7 @@ class I18nTest {
     }
 
     @Test
-    @DisplayName("Finnish, Swedish and Japanese bundles are localized")
+    @DisplayName("Finnish, Swedish, Japanese and Arabic bundles are localized")
     void bundlesAreLocalized() {
         assertEquals("Lämpötilamuunnin",
                 I18n.load(Language.FINNISH.getLocale()).getString("app.title"));
@@ -61,6 +62,8 @@ class I18nTest {
                 I18n.load(Language.SWEDISH.getLocale()).getString("app.title"));
         assertEquals("温度変換",
                 I18n.load(Language.JAPANESE.getLocale()).getString("app.title"));
+        assertEquals("محول درجة الحرارة",
+                I18n.load(Language.ARABIC.getLocale()).getString("app.title"));
     }
 
     @Test
@@ -77,6 +80,16 @@ class I18nTest {
     }
 
     @Test
+    @DisplayName("Arabic properties are read as UTF-8")
+    void arabicBundleUsesUtf8() {
+        ResourceBundle bundle = I18n.load(Language.ARABIC.getLocale());
+
+        String title = bundle.getString("app.title");
+        assertEquals("محول درجة الحرارة", title);
+        assertTrue(title.codePoints().anyMatch(codePoint -> codePoint > 0x7F));
+    }
+
+    @Test
     @DisplayName("Language codes are resolved case-insensitively")
     void languageCodesAreResolved() {
         assertEquals(Language.ENGLISH, Language.fromCode("en"));
@@ -85,6 +98,9 @@ class I18nTest {
         assertEquals(Language.SWEDISH, Language.fromCode("sv_SE"));
         assertEquals(Language.JAPANESE, Language.fromCode("ja_JP"));
         assertEquals(Language.JAPANESE, Language.fromCode("JA"));
+        assertEquals(Language.ARABIC, Language.fromCode("ar_SA"));
+        assertEquals(Language.ARABIC, Language.fromCode("ar-SA"));
+        assertEquals(Language.ARABIC, Language.fromCode("ar"));
     }
 
     @Test
@@ -102,6 +118,7 @@ class I18nTest {
         assertEquals("Suomi", Language.FINNISH.getDisplayName());
         assertEquals("Svenska", Language.SWEDISH.getDisplayName());
         assertEquals("日本語", Language.JAPANESE.toString());
+        assertEquals("العربية", Language.ARABIC.getDisplayName());
     }
 
     @Test
