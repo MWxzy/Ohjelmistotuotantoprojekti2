@@ -7,6 +7,7 @@ COPY pom.xml .
 RUN mvn -B dependency:go-offline
 
 COPY src ./src
+COPY init.sql .
 
 RUN mvn -B clean verify -Djavafx.platform=linux
 

@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,18 +18,36 @@ class I18nTest {
     private static final String[] REQUIRED_KEYS = {
             "app.title",
             "language.content",
+            "tab.temperature",
+            "tab.speed",
             "label.value",
             "label.from",
             "label.to",
+            "label.distance",
+            "label.time",
+            "label.speedUnit",
             "button.convert",
+            "button.calculateSpeed",
             "label.result",
             "prompt.enterValue",
+            "prompt.enterDistance",
+            "prompt.enterTime",
+            "history.title",
+            "history.empty",
+            "speed.history.title",
+            "speed.history.empty",
             "error.invalidInput",
-            "unit.celsius",
-            "unit.fahrenheit",
-            "unit.kelvin",
-            "result.format"
+            "error.selectUnits",
+            "error.invalidTime",
+            "error.database",
+            "result.format",
+            "speed.result.format"
     };
+
+    @AfterEach
+    void resetLanguage() {
+        I18n.setLocale(Locale.US);
+    }
 
     @ParameterizedTest
     @EnumSource(Language.class)
@@ -41,6 +60,20 @@ class I18nTest {
         for (String key : REQUIRED_KEYS) {
             assertTrue(bundle.containsKey(key), () -> "Missing key: " + key);
             assertFalse(bundle.getString(key).isBlank(), () -> "Blank value: " + key);
+        }
+    }
+
+    @Test
+    @DisplayName("All bundles contain the same keys")
+    void allBundlesHaveTheSameKeys() {
+        ResourceBundle base = I18n.load(Locale.US);
+
+        for (Language language : Language.values()) {
+            assertEquals(
+                    base.keySet(),
+                    I18n.load(language.getLocale()).keySet(),
+                    "Key mismatch for " + language
+            );
         }
     }
 
@@ -76,7 +109,7 @@ class I18nTest {
         assertTrue(title.codePoints().anyMatch(codePoint -> codePoint > 0x7F));
 
         String error = bundle.getString("error.invalidInput");
-        assertEquals("無効な入力です！", error);
+        assertEquals("無効な入力です!", error);
     }
 
     @Test
@@ -130,8 +163,6 @@ class I18nTest {
         assertFalse(I18n.contains("missing.key"));
         assertEquals(Language.JAPANESE.getLocale(), I18n.getLocale());
         assertEquals("温度変換", I18n.get("app.title"));
-
-        I18n.setLocale(Locale.US);
     }
 
     @Test
@@ -139,13 +170,11 @@ class I18nTest {
     void formattedResultsUseActiveLocale() {
         I18n.setLocale(Locale.US);
         assertEquals("Result: 20.00 Celsius",
-                I18n.format("result.format", 20.0, I18n.get("unit.celsius")));
+                I18n.format("result.format", 20.0, "Celsius"));
 
         I18n.setLocale(Language.FINNISH.getLocale());
         assertEquals("Tulos: 20,00 Celsius",
-                I18n.format("result.format", 20.0, I18n.get("unit.celsius")));
-
-        I18n.setLocale(Locale.US);
+                I18n.format("result.format", 20.0, "Celsius"));
     }
 
     @Test

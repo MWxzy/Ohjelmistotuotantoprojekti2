@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="database.TempRecordDAOTest" time="0.108" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="database.ConversionDAOTest" time="4.369" tests="5" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="FI"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin"/>
-    <property name="sun.java.command" value="C:\Users\kaspe\AppData\Local\Temp\surefire12971766298655061928\surefirebooter-20261101155322976_3.jar C:\Users\kaspe\AppData\Local\Temp\surefire12971766298655061928 2026-11-01T15-53-22_462-jvmRun1 surefire-20261101155322976_1tmp surefire_0-20261101155322976_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\kaspe\AppData\Local\Temp\surefire14364234424432655654\surefirebooter-20261107193126871_3.jar C:\Users\kaspe\AppData\Local\Temp\surefire14364234424432655654 2026-11-07T19-31-26_181-jvmRun1 surefire-20261107193126871_1tmp surefire_0-20261107193126871_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\target\test-classes;C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\target\classes;C:\Users\kaspe\.m2\repository\org\junit\jupiter\junit-jupiter\5.13.4\junit-jupiter-5.13.4.jar;C:\Users\kaspe\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.13.4\junit-jupiter-api-5.13.4.jar;C:\Users\kaspe\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\kaspe\.m2\repository\org\junit\platform\junit-platform-commons\1.13.4\junit-platform-commons-1.13.4.jar;C:\Users\kaspe\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\kaspe\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.13.4\junit-jupiter-params-5.13.4.jar;C:\Users\kaspe\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.13.4\junit-jupiter-engine-5.13.4.jar;C:\Users\kaspe\.m2\repository\org\junit\platform\junit-platform-engine\1.13.4\junit-platform-engine-1.13.4.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2-win.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-fxml\21.0.2\javafx-fxml-21.0.2-win.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-controls\21.0.2\javafx-controls-21.0.2.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-graphics\21.0.2\javafx-graphics-21.0.2-win.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2.jar;C:\Users\kaspe\.m2\repository\org\openjfx\javafx-base\21.0.2\javafx-base-21.0.2-win.jar;C:\Users\kaspe\.m2\repository\com\h2database\h2\2.2.224\h2-2.2.224.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\kaspe\AppData\Local\Temp\surefire12971766298655061928\surefirebooter-20261101155322976_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\kaspe\AppData\Local\Temp\surefire14364234424432655654\surefirebooter-20261107193126871_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.12.1+1-LTS"/>
@@ -52,7 +52,7 @@
     <property name="user.language.format" value="en"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="native.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Python314\Scripts\;C:\Python314\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Mullvad VPN\resources;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Users\kaspe\AppData\Local\Microsoft\WindowsApps;C:\Users\kaspe\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\kaspe\AppData\Roaming\npm;C:\Users\kaspe\AppData\Local\PowerToys\DSCModules\;C:\Users\kaspe\.dotnet\tools;C:\ProgramData\kaspe\GitHubDesktop\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\bin;C:\Users\kaspe\AppData\Local\Programs\DockerDesktop\resources\bin;C:\Users\kaspe\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build-shared\bin;C:\Users\kaspe\AppData\Local\Microsoft\WinGet\Links;;."/>
+    <property name="java.library.path" value="C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot\bin;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Python314\Scripts\;C:\Python314\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\Mullvad VPN\resources;C:\Program Files\dotnet\;C:\Program Files\Git\cmd;C:\Program Files\Kubernetes\Minikube;C:\Users\kaspe\AppData\Local\Microsoft\WindowsApps;C:\Users\kaspe\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\kaspe\AppData\Roaming\npm;C:\Users\kaspe\AppData\Local\PowerToys\DSCModules\;C:\Users\kaspe\.dotnet\tools;C:\ProgramData\kaspe\GitHubDesktop\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\bin;C:\Users\kaspe\AppData\Local\Programs\DockerDesktop\resources\bin;C:\Users\kaspe\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build-shared\bin;C:\Users\kaspe\AppData\Local\Microsoft\WinGet\Links;;."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="Cp1252"/>
     <property name="java.vendor" value="Microsoft"/>
@@ -60,6 +60,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="saveRecordStoresAllValues" classname="database.TempRecordDAOTest" time="0.055"/>
-  <testcase name="saveRecordStoresMultipleConversions" classname="database.TempRecordDAOTest" time="0.047"/>
+  <testcase name="returnsLocalizedUnitNamesForArabic" classname="database.ConversionDAOTest" time="3.422"/>
+  <testcase name="fallsBackToEnglishUnitNames" classname="database.ConversionDAOTest" time="0.139"/>
+  <testcase name="returnsLocalizedUnitNamesForJapanese" classname="database.ConversionDAOTest" time="0.236"/>
+  <testcase name="limitsRecentConversions" classname="database.ConversionDAOTest" time="0.211"/>
+  <testcase name="savesAndFindsRecentConversions" classname="database.ConversionDAOTest" time="0.17"/>
 </testsuite>

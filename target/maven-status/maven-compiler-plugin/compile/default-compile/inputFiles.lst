@@ -1,9 +1,14 @@
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\ConversionDAO.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\ConversionRecord.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\DatabaseManager.java
-C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\TemperatureUnitDAO.java
-C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\TempRecordDAO.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\MeasurementDAO.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\SpeedRecord.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\Unit.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\database\UnitDAO.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\I18n.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\Language.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\Launcher.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\TempConverterApp.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\TempConverterController.java
 C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\TemperatureConverter.java
+C:\Users\kaspe\IdeaProjects\Ohjelmistotuotantoprojekti1\src\main\java\UnitConverter.java

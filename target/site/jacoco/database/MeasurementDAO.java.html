@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fi"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MeasurementDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment</a> &gt; <a href="index.source.html" class="el_package">database</a> &gt; <span class="el_source">MeasurementDAO.java</span></div><h1>MeasurementDAO.java</h1><pre class="source lang-java linenums">package database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L11">public class MeasurementDAO {</span>
+
+    private static final String INSERT_DISTANCE = &quot;&quot;&quot;
+            INSERT INTO distance_measurement (measurement_value, unit_id)
+            VALUES (?, ?)
+            &quot;&quot;&quot;;
+
+    private static final String INSERT_TIME = &quot;&quot;&quot;
+            INSERT INTO time_measurement (measurement_value, unit_id)
+            VALUES (?, ?)
+            &quot;&quot;&quot;;
+
+    private static final String INSERT_SPEED = &quot;&quot;&quot;
+            INSERT INTO speed_measurement
+                (distance_id, time_id, speed_value, speed_unit_id, language_code)
+            VALUES (?, ?, ?, ?, ?)
+            &quot;&quot;&quot;;
+
+    private static final String SELECT_RECENT = &quot;&quot;&quot;
+            SELECT s.speed_id,
+                   d.measurement_value AS distance_value,
+                   COALESCE(dt.name, de.name) AS distance_name,
+                   du.symbol AS distance_symbol,
+                   t.measurement_value AS time_value,
+                   COALESCE(tt.name, te.name) AS time_name,
+                   tu.symbol AS time_symbol,
+                   s.speed_value,
+                   COALESCE(st.name, se.name) AS speed_name,
+                   su.symbol AS speed_symbol,
+                   s.language_code,
+                   s.recorded_at
+            FROM speed_measurement s
+            JOIN distance_measurement d ON d.distance_id = s.distance_id
+            JOIN time_measurement t ON t.time_id = s.time_id
+            JOIN unit du ON du.unit_id = d.unit_id
+            JOIN unit tu ON tu.unit_id = t.unit_id
+            JOIN unit su ON su.unit_id = s.speed_unit_id
+            LEFT JOIN unit_translation dt
+                   ON dt.unit_id = du.unit_id AND dt.lang = ?
+            LEFT JOIN unit_translation de
+                   ON de.unit_id = du.unit_id AND de.lang = 'en'
+            LEFT JOIN unit_translation tt
+                   ON tt.unit_id = tu.unit_id AND tt.lang = ?
+            LEFT JOIN unit_translation te
+                   ON te.unit_id = tu.unit_id AND te.lang = 'en'
+            LEFT JOIN unit_translation st
+                   ON st.unit_id = su.unit_id AND st.lang = ?
+            LEFT JOIN unit_translation se
+                   ON se.unit_id = su.unit_id AND se.lang = 'en'
+            ORDER BY s.recorded_at DESC, s.speed_id DESC
+            LIMIT ?
+            &quot;&quot;&quot;;
+
+    public long saveSpeed(
+            double distanceValue,
+            int distanceUnitId,
+            double timeValue,
+            int timeUnitId,
+            double speedValue,
+            int speedUnitId,
+            String languageCode
+    ) throws SQLException {
+<span class="fc" id="L73">        try (Connection connection = DatabaseManager.getConnection()) {</span>
+<span class="fc" id="L74">            connection.setAutoCommit(false);</span>
+
+            try {
+<span class="fc" id="L77">                long distanceId = insertMeasurement(</span>
+                        connection,
+                        INSERT_DISTANCE,
+                        &quot;distance_id&quot;,
+                        distanceValue,
+                        distanceUnitId
+                );
+
+<span class="fc" id="L85">                long timeId = insertMeasurement(</span>
+                        connection,
+                        INSERT_TIME,
+                        &quot;time_id&quot;,
+                        timeValue,
+                        timeUnitId
+                );
+
+                long speedId;
+
+<span class="fc" id="L95">                try (PreparedStatement statement = connection.prepareStatement(</span>
+                        INSERT_SPEED,
+                        Statement.RETURN_GENERATED_KEYS
+                )) {
+<span class="fc" id="L99">                    statement.setLong(1, distanceId);</span>
+<span class="fc" id="L100">                    statement.setLong(2, timeId);</span>
+<span class="fc" id="L101">                    statement.setDouble(3, speedValue);</span>
+<span class="fc" id="L102">                    statement.setInt(4, speedUnitId);</span>
+<span class="fc" id="L103">                    statement.setString(5, languageCode);</span>
+<span class="fc" id="L104">                    statement.executeUpdate();</span>
+
+<span class="fc" id="L106">                    try (ResultSet keys = statement.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">                        if (!keys.next()) {</span>
+<span class="nc" id="L108">                            throw new SQLException(</span>
+                                    &quot;No generated key returned for speed measurement.&quot;
+                            );
+                        }
+<span class="fc" id="L112">                        speedId = keys.getLong(1);</span>
+                    }
+                }
+
+<span class="fc" id="L116">                connection.commit();</span>
+<span class="fc" id="L117">                return speedId;</span>
+<span class="nc" id="L118">            } catch (SQLException | RuntimeException exception) {</span>
+<span class="nc" id="L119">                connection.rollback();</span>
+<span class="nc" id="L120">                throw exception;</span>
+            }
+        }
+    }
+
+    public List&lt;SpeedRecord&gt; findRecentSpeed(int limit, String language) throws SQLException {
+<span class="fc" id="L126">        try (Connection connection = DatabaseManager.getConnection();</span>
+<span class="fc" id="L127">             PreparedStatement statement = connection.prepareStatement(SELECT_RECENT)) {</span>
+<span class="fc" id="L128">            statement.setString(1, language);</span>
+<span class="fc" id="L129">            statement.setString(2, language);</span>
+<span class="fc" id="L130">            statement.setString(3, language);</span>
+<span class="fc" id="L131">            statement.setInt(4, limit);</span>
+
+<span class="fc" id="L133">            try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="fc" id="L134">                List&lt;SpeedRecord&gt; records = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                while (resultSet.next()) {</span>
+<span class="fc" id="L136">                    records.add(new SpeedRecord(</span>
+<span class="fc" id="L137">                            resultSet.getLong(&quot;speed_id&quot;),</span>
+<span class="fc" id="L138">                            resultSet.getDouble(&quot;distance_value&quot;),</span>
+<span class="fc" id="L139">                            resultSet.getString(&quot;distance_name&quot;),</span>
+<span class="fc" id="L140">                            resultSet.getString(&quot;distance_symbol&quot;),</span>
+<span class="fc" id="L141">                            resultSet.getDouble(&quot;time_value&quot;),</span>
+<span class="fc" id="L142">                            resultSet.getString(&quot;time_name&quot;),</span>
+<span class="fc" id="L143">                            resultSet.getString(&quot;time_symbol&quot;),</span>
+<span class="fc" id="L144">                            resultSet.getDouble(&quot;speed_value&quot;),</span>
+<span class="fc" id="L145">                            resultSet.getString(&quot;speed_name&quot;),</span>
+<span class="fc" id="L146">                            resultSet.getString(&quot;speed_symbol&quot;),</span>
+<span class="fc" id="L147">                            resultSet.getString(&quot;language_code&quot;),</span>
+<span class="fc" id="L148">                            resultSet.getTimestamp(&quot;recorded_at&quot;).toLocalDateTime()</span>
+                    ));
+                }
+<span class="fc" id="L151">                return records;</span>
+            }
+        }
+    }
+
+    private long insertMeasurement(
+            Connection connection,
+            String sql,
+            String idColumn,
+            double value,
+            int unitId
+    ) throws SQLException {
+<span class="fc" id="L163">        try (PreparedStatement statement = connection.prepareStatement(</span>
+                sql,
+                new String[]{idColumn}
+        )) {
+<span class="fc" id="L167">            statement.setDouble(1, value);</span>
+<span class="fc" id="L168">            statement.setInt(2, unitId);</span>
+<span class="fc" id="L169">            statement.executeUpdate();</span>
+
+<span class="fc" id="L171">            try (ResultSet keys = statement.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">                if (keys.next()) {</span>
+<span class="fc" id="L173">                    return keys.getLong(1);</span>
+                }
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">            }</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        }</span>
+
+<span class="nc" id="L178">        throw new SQLException(&quot;No generated key returned for measurement.&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

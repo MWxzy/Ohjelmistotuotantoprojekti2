@@ -1,49 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fi"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DatabaseManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment</a> &gt; <a href="index.source.html" class="el_package">database</a> &gt; <span class="el_source">DatabaseManager.java</span></div><h1>DatabaseManager.java</h1><pre class="source lang-java linenums">package database;
 
+import org.h2.tools.RunScript;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
-<span class="nc" id="L8">public class DatabaseManager {</span>
-    private static final String DEFAULT_DB_URL = &quot;jdbc:h2:./data/tempconverter;DB_CLOSE_DELAY=-1&quot;;
+<span class="nc" id="L16">public class DatabaseManager {</span>
+
+    private static final String DEFAULT_DB_URL =
+            &quot;jdbc:h2:./data/tempconverter;DB_CLOSE_DELAY=-1&quot;;
     private static final String USER = &quot;sa&quot;;
     private static final String PASS = &quot;&quot;;
 
     public static Connection getConnection() throws SQLException {
-<span class="fc" id="L14">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
-<span class="fc" id="L15">        return DriverManager.getConnection(url, USER, PASS);</span>
+<span class="fc" id="L24">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
+<span class="fc" id="L25">        return DriverManager.getConnection(url, USER, PASS);</span>
     }
 
     public static void initializeDatabase() {
-<span class="fc" id="L19">        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {</span>
-<span class="fc" id="L20">            stmt.execute(&quot;&quot;&quot;</span>
-                CREATE TABLE IF NOT EXISTS temperature_unit (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(50) NOT NULL,
-                    symbol VARCHAR(10) NOT NULL
-                )
-            &quot;&quot;&quot;);
+<span class="fc" id="L29">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
 
-<span class="fc" id="L28">            stmt.execute(&quot;&quot;&quot;</span>
-            CREATE TABLE IF NOT EXISTS temperature_record (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                input_value DECIMAL(10,2) NOT NULL,
-                from_unit_id INT NOT NULL,
-                to_unit_id INT NOT NULL,
-                result DECIMAL(10,2) NOT NULL,
-                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (from_unit_id) REFERENCES temperature_unit(id),
-                FOREIGN KEY (to_unit_id) REFERENCES temperature_unit(id)
-            )
-&quot;&quot;&quot;);
+        try {
+<span class="pc bpc" id="L32" title="2 of 4 branches missed.">            if (url.startsWith(&quot;jdbc:h2:./&quot;) || url.startsWith(&quot;jdbc:h2:file:&quot;)) {</span>
+<span class="nc" id="L33">                Files.createDirectories(Path.of(&quot;data&quot;));</span>
+            }
 
-<span class="fc" id="L41">            stmt.execute(&quot;MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (1, 'Celsius', '°C')&quot;);</span>
-<span class="fc" id="L42">            stmt.execute(&quot;MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (2, 'Fahrenheit', '°F')&quot;);</span>
-<span class="fc" id="L43">            stmt.execute(&quot;MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (3, 'Kelvin', 'K')&quot;);</span>
-<span class="nc" id="L44">        } catch (SQLException e) {</span>
-<span class="nc" id="L45">            e.printStackTrace();</span>
-<span class="fc" id="L46">        }</span>
-<span class="fc" id="L47">    }</span>
+<span class="fc" id="L36">            try (Connection connection = getConnection();</span>
+<span class="fc" id="L37">                 InputStream input = DatabaseManager.class.getResourceAsStream(&quot;/init.sql&quot;)) {</span>
+
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                if (input == null) {</span>
+<span class="nc" id="L40">                    throw new IllegalStateException(&quot;Missing classpath resource: /init.sql&quot;);</span>
+                }
+
+<span class="fc" id="L43">                try (Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {</span>
+<span class="fc" id="L44">                    RunScript.execute(connection, reader);</span>
+                }
+            }
+<span class="nc" id="L47">        } catch (IOException | SQLException exception) {</span>
+<span class="nc" id="L48">            throw new IllegalStateException(&quot;Unable to initialize the database&quot;, exception);</span>
+<span class="fc" id="L49">        }</span>
+<span class="fc" id="L50">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

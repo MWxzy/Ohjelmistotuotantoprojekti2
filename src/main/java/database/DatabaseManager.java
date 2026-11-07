@@ -1,12 +1,22 @@
 package database;
 
+import org.h2.tools.RunScript;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class DatabaseManager {
-    private static final String DEFAULT_DB_URL = "jdbc:h2:./data/tempconverter;DB_CLOSE_DELAY=-1";
+
+    private static final String DEFAULT_DB_URL =
+            "jdbc:h2:./data/tempconverter;DB_CLOSE_DELAY=-1";
     private static final String USER = "sa";
     private static final String PASS = "";
 
@@ -16,33 +26,26 @@ public class DatabaseManager {
     }
 
     public static void initializeDatabase() {
-        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS temperature_unit (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(50) NOT NULL,
-                    symbol VARCHAR(10) NOT NULL
-                )
-            """);
+        String url = System.getProperty("h2.url", DEFAULT_DB_URL);
 
-            stmt.execute("""
-            CREATE TABLE IF NOT EXISTS temperature_record (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                input_value DECIMAL(10,2) NOT NULL,
-                from_unit_id INT NOT NULL,
-                to_unit_id INT NOT NULL,
-                result DECIMAL(10,2) NOT NULL,
-                recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (from_unit_id) REFERENCES temperature_unit(id),
-                FOREIGN KEY (to_unit_id) REFERENCES temperature_unit(id)
-            )
-""");
+        try {
+            if (url.startsWith("jdbc:h2:./") || url.startsWith("jdbc:h2:file:")) {
+                Files.createDirectories(Path.of("data"));
+            }
 
-            stmt.execute("MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (1, 'Celsius', '°C')");
-            stmt.execute("MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (2, 'Fahrenheit', '°F')");
-            stmt.execute("MERGE INTO temperature_unit (id, name, symbol) KEY(id) VALUES (3, 'Kelvin', 'K')");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            try (Connection connection = getConnection();
+                 InputStream input = DatabaseManager.class.getResourceAsStream("/init.sql")) {
+
+                if (input == null) {
+                    throw new IllegalStateException("Missing classpath resource: /init.sql");
+                }
+
+                try (Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+                    RunScript.execute(connection, reader);
+                }
+            }
+        } catch (IOException | SQLException exception) {
+            throw new IllegalStateException("Unable to initialize the database", exception);
         }
     }
 }

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="root"
+      spacing="12"
+      style="-fx-padding: 18;">
+
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18"/>
+    </padding>
+
+    <Label text="%app.title"
+           style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="%language.content"/>
+        <ComboBox fx:id="languageCombo" prefWidth="180"/>
+    </HBox>
+
+    <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+
+        <Tab text="%tab.temperature">
+            <VBox spacing="10" style="-fx-padding: 12;">
+                <GridPane hgap="10" vgap="8">
+                    <Label text="%label.value"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="0"/>
+                    <TextField fx:id="valueField"
+                               promptText="%prompt.enterValue"
+                               prefWidth="170"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="0"/>
+
+                    <Label text="%label.from"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="1"/>
+                    <ComboBox fx:id="fromUnit"
+                              prefWidth="170"
+                              GridPane.columnIndex="1"
+                              GridPane.rowIndex="1"/>
+                    <Label fx:id="fromDescription"
+                           wrapText="true"
+                           maxWidth="330"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                           GridPane.columnIndex="2"
+                           GridPane.rowIndex="1"/>
+
+                    <Label text="%label.to"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="2"/>
+                    <ComboBox fx:id="toUnit"
+                              prefWidth="170"
+                              GridPane.columnIndex="1"
+                              GridPane.rowIndex="2"/>
+                    <Label fx:id="toDescription"
+                           wrapText="true"
+                           maxWidth="330"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                           GridPane.columnIndex="2"
+                           GridPane.rowIndex="2"/>
+
+                    <Button fx:id="convertButton"
+                            text="%button.convert"
+                            onAction="#handleConvert"
+                            prefWidth="170"
+                            GridPane.columnIndex="1"
+                            GridPane.rowIndex="3"/>
+
+                    <Label fx:id="resultLabel"
+                           text="%label.result"
+                           wrapText="true"
+                           style="-fx-font-size: 14px;"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="4"
+                           GridPane.columnSpan="3"/>
+                </GridPane>
+
+                <Label text="%history.title"
+                       style="-fx-font-weight: bold;"/>
+
+                <ListView fx:id="historyList"
+                          prefHeight="150"
+                          VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+
+        <Tab text="%tab.speed">
+            <VBox spacing="10" style="-fx-padding: 12;">
+                <GridPane hgap="10" vgap="8">
+                    <Label text="%label.distance"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="0"/>
+                    <TextField fx:id="distanceField"
+                               promptText="%prompt.enterDistance"
+                               prefWidth="120"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="0"/>
+                    <ComboBox fx:id="distanceUnit"
+                              prefWidth="150"
+                              GridPane.columnIndex="2"
+                              GridPane.rowIndex="0"/>
+                    <Label fx:id="distanceDescription"
+                           wrapText="true"
+                           maxWidth="280"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="0"/>
+
+                    <Label text="%label.time"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="1"/>
+                    <TextField fx:id="timeField"
+                               promptText="%prompt.enterTime"
+                               prefWidth="120"
+                               GridPane.columnIndex="1"
+                               GridPane.rowIndex="1"/>
+                    <ComboBox fx:id="timeUnit"
+                              prefWidth="150"
+                              GridPane.columnIndex="2"
+                              GridPane.rowIndex="1"/>
+                    <Label fx:id="timeDescription"
+                           wrapText="true"
+                           maxWidth="280"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="1"/>
+
+                    <Label text="%label.speedUnit"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="2"/>
+                    <ComboBox fx:id="speedUnit"
+                              prefWidth="150"
+                              GridPane.columnIndex="1"
+                              GridPane.columnSpan="2"
+                              GridPane.rowIndex="2"/>
+                    <Label fx:id="speedDescription"
+                           wrapText="true"
+                           maxWidth="280"
+                           style="-fx-text-fill: #64748b; -fx-font-size: 12px;"
+                           GridPane.columnIndex="3"
+                           GridPane.rowIndex="2"/>
+
+                    <Button text="%button.calculateSpeed"
+                            onAction="#handleCalculateSpeed"
+                            prefWidth="170"
+                            GridPane.columnIndex="1"
+                            GridPane.rowIndex="3"/>
+
+                    <Label fx:id="speedResultLabel"
+                           text="%label.result"
+                           wrapText="true"
+                           style="-fx-font-size: 14px;"
+                           GridPane.columnIndex="0"
+                           GridPane.rowIndex="4"
+                           GridPane.columnSpan="4"/>
+                </GridPane>
+
+                <Label text="%speed.history.title"
+                       style="-fx-font-weight: bold;"/>
+
+                <ListView fx:id="speedHistoryList"
+                          prefHeight="150"
+                          VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

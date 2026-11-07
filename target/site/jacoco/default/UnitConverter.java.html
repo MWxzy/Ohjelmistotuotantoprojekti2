@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fi"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnitConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">UnitConverter.java</span></div><h1>UnitConverter.java</h1><pre class="source lang-java linenums">import database.Unit;
+
+<span class="fc" id="L3">public class UnitConverter {</span>
+
+    public double convertTemperature(double value, Unit from, Unit to) {
+<span class="fc" id="L6">        requireFinite(value, &quot;Temperature&quot;);</span>
+<span class="fc" id="L7">        requireCategory(from, &quot;TEMPERATURE&quot;);</span>
+<span class="fc" id="L8">        requireCategory(to, &quot;TEMPERATURE&quot;);</span>
+
+<span class="fc" id="L10">        double base = value * from.factorToBase() + from.offsetToBase();</span>
+<span class="fc" id="L11">        return (base - to.offsetToBase()) / to.factorToBase();</span>
+    }
+
+    public double convertLinear(double value, Unit from, Unit to) {
+<span class="fc" id="L15">        requireFinite(value, &quot;Value&quot;);</span>
+<span class="fc" id="L16">        requireUnit(from);</span>
+<span class="fc" id="L17">        requireUnit(to);</span>
+
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (!from.category().equals(to.category())) {</span>
+<span class="fc" id="L20">            throw new IllegalArgumentException(&quot;Units must belong to the same category.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L23" title="1 of 4 branches missed.">        if (from.factorToBase() &lt;= 0 || to.factorToBase() &lt;= 0) {</span>
+<span class="fc" id="L24">            throw new IllegalArgumentException(&quot;Conversion factors must be positive.&quot;);</span>
+        }
+
+<span class="fc" id="L27">        return value * from.factorToBase() / to.factorToBase();</span>
+    }
+
+    public double calculateSpeed(
+            double distance,
+            Unit distanceUnit,
+            double time,
+            Unit timeUnit,
+            Unit speedUnit
+    ) {
+<span class="fc" id="L37">        requireFinite(distance, &quot;Distance&quot;);</span>
+<span class="fc" id="L38">        requireFinite(time, &quot;Time&quot;);</span>
+<span class="fc" id="L39">        requireCategory(distanceUnit, &quot;DISTANCE&quot;);</span>
+<span class="fc" id="L40">        requireCategory(timeUnit, &quot;TIME&quot;);</span>
+<span class="fc" id="L41">        requireCategory(speedUnit, &quot;SPEED&quot;);</span>
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (distance &lt; 0) {</span>
+<span class="fc" id="L44">            throw new IllegalArgumentException(&quot;Distance cannot be negative.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        if (time &lt;= 0) {</span>
+<span class="fc" id="L48">            throw new IllegalArgumentException(&quot;Time must be greater than zero.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">        if (distanceUnit.factorToBase() &lt;= 0</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">                || timeUnit.factorToBase() &lt;= 0</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                || speedUnit.factorToBase() &lt;= 0) {</span>
+<span class="fc" id="L54">            throw new IllegalArgumentException(&quot;Conversion factors must be positive.&quot;);</span>
+        }
+
+<span class="fc" id="L57">        double metres = distance * distanceUnit.factorToBase();</span>
+<span class="fc" id="L58">        double seconds = time * timeUnit.factorToBase();</span>
+<span class="fc" id="L59">        return metres / seconds / speedUnit.factorToBase();</span>
+    }
+
+    private void requireFinite(double value, String label) {
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        if (!Double.isFinite(value)) {</span>
+<span class="fc" id="L64">            throw new IllegalArgumentException(label + &quot; must be a finite number.&quot;);</span>
+        }
+<span class="fc" id="L66">    }</span>
+
+    private void requireUnit(Unit unit) {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (unit == null) {</span>
+<span class="fc" id="L70">            throw new IllegalArgumentException(&quot;Unit is required.&quot;);</span>
+        }
+<span class="fc" id="L72">    }</span>
+
+    private void requireCategory(Unit unit, String category) {
+<span class="fc" id="L75">        requireUnit(unit);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (!category.equals(unit.category())) {</span>
+<span class="fc" id="L77">            throw new IllegalArgumentException(&quot;Expected a &quot; + category + &quot; unit.&quot;);</span>
+        }
+<span class="fc" id="L79">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

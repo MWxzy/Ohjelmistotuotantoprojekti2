@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: TemperatureConverterTest
 -------------------------------------------------------------------------------
-Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.342 s -- in TemperatureConverterTest
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.359 s -- in TemperatureConverterTest

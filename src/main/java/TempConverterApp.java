@@ -42,9 +42,11 @@ public class TempConverterApp extends Application {
             loader.setResources(bundle);
 
             Parent root = loader.load();
-            Scene scene = new Scene(root, 420, 380);
+            Scene scene = new Scene(root, 760, 760);
 
             primaryStage.setTitle(bundle.getString("app.title"));
+            primaryStage.setMinWidth(700);
+            primaryStage.setMinHeight(650);
             primaryStage.setScene(scene);
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to load the application view", exception);

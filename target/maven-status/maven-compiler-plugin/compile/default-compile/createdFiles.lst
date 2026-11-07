@@ -1,10 +1,15 @@
 TemperatureConverter.class
+database\SpeedRecord.class
 Launcher.class
 TempConverterApp.class
-database\TemperatureUnitDAO.class
+database\ConversionDAO.class
+database\MeasurementDAO.class
 I18n$Utf8Control.class
 TempConverterController.class
 Language.class
-database\TempRecordDAO.class
+database\Unit.class
 I18n.class
+UnitConverter.class
 database\DatabaseManager.class
+database\UnitDAO.class
+database\ConversionRecord.class

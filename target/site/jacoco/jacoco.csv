@@ -1,8 +1,13 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 OTP1_inclass1_assignment,default,Language,0,117,0,10,0,21,0,11,0,6
 OTP1_inclass1_assignment,default,I18n.Utf8Control,0,43,0,4,0,9,0,3,0,1
+OTP1_inclass1_assignment,default,UnitConverter,0,183,3,19,0,40,3,15,0,7
 OTP1_inclass1_assignment,default,TemperatureConverter,0,35,0,4,0,5,0,7,0,5
 OTP1_inclass1_assignment,default,I18n,0,33,0,0,0,8,0,7,0,7
-OTP1_inclass1_assignment,database,TempRecordDAO,3,32,0,0,2,11,0,2,0,2
-OTP1_inclass1_assignment,database,TemperatureUnitDAO,3,31,0,2,2,10,0,3,0,2
-OTP1_inclass1_assignment,database,DatabaseManager,6,36,0,0,3,10,1,2,1,2
+OTP1_inclass1_assignment,database,ConversionDAO,5,116,2,4,1,32,2,4,0,3
+OTP1_inclass1_assignment,database,MeasurementDAO,15,189,4,6,5,49,4,5,0,4
+OTP1_inclass1_assignment,database,Unit,3,27,0,0,1,1,1,1,1,1
+OTP1_inclass1_assignment,database,SpeedRecord,0,39,0,0,0,1,0,1,0,1
+OTP1_inclass1_assignment,database,ConversionRecord,0,30,0,0,0,1,0,1,0,1
+OTP1_inclass1_assignment,database,DatabaseManager,23,41,3,3,5,11,4,2,1,2
+OTP1_inclass1_assignment,database,UnitDAO,0,128,0,6,0,34,0,8,0,5

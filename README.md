@@ -2,29 +2,30 @@
 
 ## 1. Assignment Description
 
-This project implements a temperature conversion application with a JavaFX graphical user interface. The application allows the user to enter a temperature value, select the original unit, select the target unit, and view the converted result. The interface can be switched between English, Finnish, Swedish, Japanese, and Arabic at runtime.
+This project implements a temperature conversion application with a JavaFX graphical user interface. The interface can be switched between English, Finnish, Swedish, Japanese, and Arabic at runtime. In addition to temperature conversion, the application contains a speed calculator that uses distance and time measurements.
 
-The supported temperature units are:
+The supported temperature units are Celsius, Fahrenheit, and Kelvin. The speed calculator supports metres per second, kilometres per hour, and miles per hour, combined with metre/kilometre/mile distance units and second/minute/hour time units.
 
-- Celsius
-- Fahrenheit
-- Kelvin
-
-The application also stores conversion records in a local H2 database.
+The application stores conversion records and speed measurements in a local H2 database. Unit names and short unit descriptions are localized in the database using a translation table, while static UI texts are localized with `.properties` resource bundles. The latest five temperature conversions and the latest five speed calculations are shown in the GUI.
 
 ### Main requirements addressed
 
-- Implement a FXML-based JavaFX user interface for temperature conversion.
+- Implement a FXML-based JavaFX user interface for temperature conversion and speed calculation.
 - Support conversions between Celsius, Fahrenheit, and Kelvin.
+- Calculate speed from distance and time.
 - Provide a localized user interface in English, Finnish, Swedish, Japanese, and Arabic.
 - Allow the user to change the language dynamically without restarting the application.
-- Load the user interface texts from UTF-8 encoded `.properties` resource bundles.
+- Load static UI texts from UTF-8 encoded `.properties` resource bundles.
+- Store localized unit names and descriptions in the database using one database localization approach.
+- Provide speed, distance, and time measurement tables with foreign-key relationships.
+- Read and write speed, distance, and time measurements through the GUI.
 - Use right-to-left layout for Arabic.
 - Validate numeric user input.
-- Display the converted temperature with two decimal places.
-- Store temperature conversion records in a database with two related tables.
-- Initialize the database automatically when the application starts.
-- Provide automated unit tests for the conversion logic, localization, and database functionality.
+- Display converted values with two decimal places.
+- Save each conversion with its value, units, result, language, and timestamp, and show the latest five records in the GUI.
+- Initialize the database from `init.sql` automatically when the application starts.
+- Provide automated unit tests for the conversion logic, localization, database access, and English fallback.
+- Enforce at least 80% line coverage for the measured core logic with JaCoCo.
 - Provide Maven, Docker, Jenkins, and Kubernetes support.
 
 ## 2. Technologies & Tools Used
@@ -67,8 +68,8 @@ The application also stores conversion records in a local H2 database.
 The application is divided into four main areas:
 
 1. Graphical user interface
-2. Localization
-3. Temperature conversion logic
+2. Localization of static UI text and database data
+3. Temperature and speed conversion logic
 4. Database access
 
 The main application classes are located in `src/main/java`. The localized messages are located in `src/main/resources`.
@@ -80,19 +81,17 @@ The GUI is implemented with JavaFX and FXML. The layout is defined in `src/main/
 The application window contains:
 
 - A language selector with English, Finnish, Swedish, Japanese, and Arabic
-- A text field for entering the temperature value
-- A unit selector for the original temperature unit
-- A unit selector for the target temperature unit
-- A conversion button
-- A label for displaying the result or an error message
+- A temperature tab with a value field, source unit, target unit, conversion button, result label, and the latest five conversions
+- A speed tab with distance and time fields, distance/time/speed unit selectors, a calculation button, result label, and the latest five speed calculations
+- A short description for every selected unit, read from the database
 
-All labels, prompts, buttons, window titles, unit names, and error messages are loaded from the selected resource bundle. The FXML file uses resource-bundle keys such as `%app.title` and `%button.convert`.
+All static labels, prompts, buttons, window titles, and error messages are loaded from the selected resource bundle. The FXML file uses resource-bundle keys such as `%app.title` and `%button.convert`.
 
-Changing the language reloads the FXML view with the selected `ResourceBundle`. The language change is applied immediately, and no application restart is required. Arabic also switches the scene to right-to-left orientation.
+Unit names and unit descriptions are not stored in the `.properties` files. They are loaded from the `unit` and `unit_translation` tables through `UnitDAO` for the language currently selected in the GUI. This keeps the static UI layer and the localized data layer separate.
 
-The application starts from the `Launcher` class, which starts `TempConverterApp`.
+Changing the language reloads the FXML view with the selected `ResourceBundle` and re-queries the database for the selected language. The language change is applied immediately, and no application restart is required. Arabic also switches the scene to right-to-left orientation.
 
-The main JavaFX application initializes the database before displaying the user interface. The available temperature units are loaded from the database through `TemperatureUnitDAO`.
+The application starts from the `Launcher` class, which starts `TempConverterApp`. `TempConverterApp` calls `DatabaseManager.initializeDatabase()` before displaying the user interface. The schema and seed data are read from the repository-level `init.sql` file, which is copied to the application classpath during the Maven build.
 
 ### Localization
 
@@ -111,67 +110,112 @@ The project contains the following UTF-8 properties files:
 
 The `Language` enum defines the supported locales. The `I18n` class loads the bundle for the selected locale and exposes the localized strings and locale-aware formatting to the UI.
 
-The language selector in the FXML view changes the active `ResourceBundle` at runtime. When Arabic is selected, the scene orientation is set to right-to-left, and the result is formatted with the Arabic locale.
+The language selector in the FXML view changes the active `ResourceBundle` at runtime. When Arabic is selected, the scene orientation is set to right-to-left, and the result is formatted with the Arabic locale. The same selected language code is passed to `UnitDAO`, `ConversionDAO`, and `MeasurementDAO`, so both the UI texts and the unit names/descriptions change together.
 
-### Temperature conversion
+### Temperature and speed conversion
 
-The conversion logic is implemented in the `TemperatureConverter` class. The following conversions are supported:
+The temperature conversion logic is implemented in the `TemperatureConverter` class. The following conversions are supported:
 
 - Fahrenheit to Celsius
 - Celsius to Fahrenheit
 - Kelvin to Celsius
 - Detection of extreme Celsius temperatures
 
-The GUI supports conversion between all three units by first converting the input value to Celsius and then converting the Celsius value to the selected target unit. The GUI delegates the actual formulas to `TemperatureConverter`.
+The GUI supports conversion between all three temperature units by using the conversion factors and offsets stored in the `unit` table. The speed calculator uses the `UnitConverter` class to convert distance and time to base units and then to the selected speed unit. The formulas are:
 
-Temperature values are displayed using two decimal places and the number formatting conventions of the selected locale.
+```text
+temperature: base = value * factor_to_base + offset_to_base
+linear unit: result = value * from_factor / to_factor
+speed:       result = (distance * distance_factor) / (time * time_factor) / speed_factor
+```
+
+Values are displayed using two decimal places and the number formatting conventions of the selected locale. The input parser also accepts a comma decimal separator and Arabic-Indic digits.
 
 ### Database design
 
-The application uses an H2 file-based database stored in the `data` directory.
+The application uses an H2 file-based database stored in the `data` directory. The schema is defined in the repository-level `init.sql` file and is executed automatically at application startup.
 
-The database contains two tables:
+The chosen database localization approach is a **translation table**. Base unit information is stored once in `unit`, and each localized name and description is stored in `unit_translation` with a language code. The database does not use separate language columns in the unit table, duplicate unit rows for each language, or one table per language.
 
-#### `temperature_unit`
+#### `unit`
 
-Stores the supported temperature units.
+Stores the language-independent information for every unit.
 
 | Column | Description |
 |---|---|
-| `id` | Unique identifier |
-| `name` | Name of the temperature unit |
-| `symbol` | Symbol of the temperature unit |
+| `unit_id` | Unique identifier |
+| `unit_key` | Stable key such as `celsius` or `kilometer` |
+| `category` | `TEMPERATURE`, `SPEED`, `DISTANCE`, or `TIME` |
+| `symbol` | Symbol such as `°C`, `km/h`, or `min` |
+| `factor_to_base` | Multiplier that converts the unit to the base unit |
+| `offset_to_base` | Offset used by temperature scales |
+| `display_order` | Order of the unit in the GUI selector |
 
-The database is automatically populated with:
+#### `unit_translation`
 
-- Celsius
-- Fahrenheit
-- Kelvin
+Stores the localized name and short description for every unit and language.
 
-#### `temperature_record`
+| Column | Description |
+|---|---|
+| `unit_id` | Reference to `unit.unit_id` |
+| `lang` | Language code: `en`, `fi`, `sv`, `ja`, or `ar` |
+| `name` | Localized unit name shown in the GUI |
+| `description` | Localized short description shown below the selector |
+
+The primary key is `(unit_id, lang)`, and `unit_id` is a foreign key to `unit`. The seed data contains 12 units and 60 translations: five languages for each unit.
+
+#### `conversion_history`
 
 Stores completed temperature conversions.
 
 | Column | Description |
 |---|---|
-| `id` | Unique identifier |
-| `input_value` | Original temperature value |
-| `from_unit_id` | Original temperature unit |
-| `to_unit_id` | Target temperature unit |
-| `result` | Converted temperature |
-| `recorded_at` | Time of the conversion |
+| `conversion_id` | Unique identifier |
+| `input_value` | Original value |
+| `from_unit_id` | Source unit, foreign key to `unit` |
+| `to_unit_id` | Target unit, foreign key to `unit` |
+| `result_value` | Converted value |
+| `language_code` | Language active during the conversion |
+| `created_at` | Timestamp of the conversion |
 
-The two tables are related through foreign keys: `temperature_record.from_unit_id` and `temperature_record.to_unit_id` both reference `temperature_unit.id`. Every conversion record therefore points to the units used in the conversion.
+#### `distance_measurement`, `time_measurement`, and `speed_measurement`
+
+These three tables form the measurement data model required by the assignment.
+
+| Table | Important columns |
+|---|---|
+| `distance_measurement` | `distance_id`, `measurement_value`, `unit_id`, `recorded_at` |
+| `time_measurement` | `time_id`, `measurement_value`, `unit_id`, `recorded_at` |
+| `speed_measurement` | `speed_id`, `distance_id`, `time_id`, `speed_value`, `speed_unit_id`, `language_code`, `recorded_at` |
+
+`distance_measurement.unit_id`, `time_measurement.unit_id`, and `speed_measurement.speed_unit_id` reference `unit.unit_id`. `speed_measurement.distance_id` references `distance_measurement.distance_id`, and `speed_measurement.time_id` references `time_measurement.time_id`. The GUI writes one row to each measurement table whenever the user calculates a speed, and it reads the latest calculations back for the history list.
+
+### Why the translation-table approach was chosen
+
+The translation table was selected because it keeps the unit data normalized and makes adding a language a data-only operation. A new language requires one new `unit_translation` row per unit (12 rows for the current unit set), not changing the table structure and not duplicating conversion factors. The base unit table remains the single source of truth for symbols and conversion factors.
+
+The `UnitDAO` query joins `unit` with `unit_translation` for the selected language and with an English translation as a fallback:
+
+```sql
+LEFT JOIN unit_translation t ON t.unit_id = u.unit_id AND t.lang = ?
+LEFT JOIN unit_translation e ON e.unit_id = u.unit_id AND e.lang = 'en'
+```
+
+The selected name and description use `COALESCE(t.name, e.name)` and `COALESCE(t.description, e.description)`. This means an incomplete translation automatically falls back to English, which satisfies the required fallback behaviour. The same query pattern is used for conversion history and speed measurements.
+
+The field approach would add one column per language to the unit table, making the schema wider for every new language. The row approach would duplicate unit facts in every localized row. A table per language would duplicate the unit identifier and conversion factor in several tables. The translation table avoids those problems while still allowing the language selector to switch the database query language at runtime.
 
 ### Database access
 
 Database operations are separated into DAO classes:
 
-- `TemperatureUnitDAO` retrieves temperature unit names.
-- `TempRecordDAO` saves conversion records.
-- `DatabaseManager` creates the database connection and initializes the database tables.
+- `UnitDAO` retrieves localized unit names and descriptions by category.
+- `ConversionDAO` saves temperature conversions and reads the latest conversions.
+- `MeasurementDAO` saves distance, time, and speed measurements and reads the latest speed calculations.
+- `DatabaseManager` creates the database connection and executes `init.sql`.
+- `UnitConverter` contains the conversion and speed calculation logic.
 
-Prepared statements are used when storing conversion records.
+Prepared statements are used for all user-supplied values. The DAO classes request the selected language code from the controller, so changing the language changes both the resource bundle and the database query.
 
 ### Build and deployment approach
 
@@ -183,6 +227,7 @@ Maven is used to:
 - Run automated tests
 - Generate JaCoCo code coverage reports
 - Enforce 100% line and branch coverage for `TemperatureConverter`
+- Enforce at least 80% line coverage for the measured core classes (DAO, conversion, localization, and database code)
 - Build an executable shaded JAR file
 
 A Dockerfile is included to create a containerized version of the application. The Docker build uses a multi-stage build, runs `mvn clean verify` (including tests and JaCoCo checks), and packages the application together with its dependencies. The runtime image uses a UTF-8 locale so the localized texts are handled correctly.
@@ -217,17 +262,22 @@ The tests cover the following functionality:
 | Conversion round-trip | Several Celsius values converted to Fahrenheit and back | The original value is returned within the tolerance |
 | Kelvin-to-Celsius conversion | `300 K`, `273.15 K`, and `0 K` | Correct Celsius values are returned |
 | Extreme temperature detection | Boundary values `-40` and `50`, edge cases `-41` and `51`, and interior values | Correctly identifies extreme temperatures |
-| Localization bundles | All five locales | Every bundle contains all required UI keys |
+| Unit conversion factors | Temperature, distance, and time unit combinations | Correct converted values are returned |
+| Speed calculation | Kilometres and minutes to km/h, kilometres and hours to m/s, miles and hours to mph | Correct speed values are returned |
+| Invalid speed input | Zero time, negative distance, wrong unit categories, and non-finite values | `IllegalArgumentException` is thrown |
+| Localization bundles | All five locales | Every bundle contains all required UI keys and the same key set |
 | UTF-8 encoding | Japanese and Arabic bundles | Non-Latin texts are read correctly without Unicode escapes |
 | Language selection | Language codes such as `ja_JP`, `fi-FI`, `sv_SE`, and `ar-SA` | Correct `Language` value is resolved |
-| Locale-aware formatting | English, Finnish, and Arabic result patterns | Decimal separators and digits follow the active locale |
-| Database connection | Initialize the database and request a connection | A valid database connection is returned |
-| Temperature unit DAO | Retrieve available temperature units | Three units are returned in the expected order |
-| Temperature record DAO | Save one or more conversions and read them back | All values and timestamps are stored correctly |
+| Locale-aware formatting | English and Finnish result patterns | Decimal separators follow the active locale |
+| Database connection and schema | Initialize the database twice and inspect the tables | Schema creation is idempotent; 12 units and 60 translations are present |
+| Localized unit DAO | English, Finnish, Swedish, Japanese, and Arabic unit lookups | Correct localized names and descriptions are returned |
+| English fallback | Unknown language and a missing translation row | English name and description are returned |
+| Conversion history DAO | Save conversions in several languages and read the latest rows | Values, localized names, language, and timestamp are stored correctly |
+| Measurement DAO | Save distance, time, and speed rows and read the latest calculations | All three related tables and localized names are used correctly |
 
-The test suite contains 34 JUnit 5 tests. The temperature conversion tests use a tolerance of `0.001` to account for floating-point calculation differences.
+The test suite contains 70 JUnit 5 tests. The temperature conversion tests use a tolerance of `0.001` to account for floating-point calculation differences.
 
-JaCoCo enforces 100% line and branch coverage for `TemperatureConverter`. The generated report currently shows 100% line and branch coverage for the default package and 96% instruction / 100% branch coverage overall. The JavaFX entry points (`TempConverterApp`, `TempConverterController`, and `Launcher`) are excluded from the coverage report because they require a display; they are verified manually.
+JaCoCo enforces 100% line and branch coverage for `TemperatureConverter` and at least 80% line coverage for the measured core classes. The generated report currently covers 94.6% of the measured core lines (212 covered, 12 missed). The JavaFX entry points (`TempConverterApp`, `TempConverterController`, and `Launcher`) are excluded from the coverage report because they require a display; they are verified manually.
 
 ### Manual testing
 
@@ -237,13 +287,18 @@ The graphical user interface can be tested manually using the following scenario
 2. Enter a valid Fahrenheit value and convert it to Celsius.
 3. Enter a valid Kelvin value and convert it to Celsius.
 4. Convert a temperature between all supported unit combinations.
-5. Leave the input empty and click **Convert**.
-6. Enter non-numeric input and click **Convert**.
-7. Confirm that an error message is displayed for invalid input.
-8. Confirm that valid conversions are displayed with two decimal places.
-9. Confirm that a conversion creates a record in the H2 database.
-10. Change the language with the language selector and confirm that the labels, the window title, and the unit names update immediately.
-11. Select Arabic and confirm that the layout switches to right-to-left and the result uses Arabic text and digits.
+5. Confirm that the selected unit descriptions are shown below the selectors and that they come from the database.
+6. Leave the input empty and click **Convert**.
+7. Enter non-numeric input and click **Convert**.
+8. Confirm that an error message is displayed for invalid input.
+9. Confirm that valid conversions are displayed with two decimal places.
+10. Confirm that a conversion creates a row in `conversion_history` and appears in the latest-five list.
+11. Open the speed tab, enter a distance and time, select the units, and click **Calculate speed**.
+12. Confirm that the speed result is correct and that rows are created in `distance_measurement`, `time_measurement`, and `speed_measurement`.
+13. Confirm that the latest speed calculations appear in the speed history list.
+14. Change the language with the language selector and confirm that the labels, the window title, the unit names, and the unit descriptions update immediately.
+15. Select Arabic and confirm that the layout switches to right-to-left and the result uses Arabic text and digits.
+16. Temporarily remove one translation row and confirm that the GUI falls back to the English name and description.
 
 ### Build verification
 
@@ -255,7 +310,7 @@ mvn test
 mvn jacoco:report
 ```
 
-`mvn clean verify` runs the tests, generates the JaCoCo report, checks the coverage rules, and builds the shaded JAR. The coverage report is written to `target/site/jacoco/index.html`, and the Surefire report is written to `target/reports/surefire.html`.
+`mvn clean verify` runs the tests, generates the JaCoCo report, checks the coverage rules, copies `init.sql` into the classpath, and builds the shaded JAR. The coverage report is written to `target/site/jacoco/index.html`, and the Surefire report is written to `target/reports/surefire.html`.
 
 The Maven build also creates a shaded JAR containing the application and its dependencies.
 
@@ -276,7 +331,7 @@ For the Docker option:
 ### Clone the repository
 
 ```bash
-git clone https://github.com/MWxzy/Ohjelmistotuotantoprojekti2.git
+git clone https://github.com/LasperKaine/Ohjelmistotuotantoprojekti1.git
 cd Ohjelmistotuotantoprojekti1
 ```
 
@@ -383,6 +438,10 @@ kubectl delete -f temperature-converter.yaml
 
 The `docs` directory contains screenshots produced from the final build:
 
+### English localized application
+
+![English localization](docs/localization-en.png)
+
 ### Arabic localized application running inside Xming
 
 ![Arabic localization in Docker with Xming](docs/docker-xming-ar.png)
@@ -417,33 +476,102 @@ The `docs` directory contains screenshots produced from the final build:
 
 ## 7. In-class Assignment 6 Submission
 
-- GitHub repository: <https://github.com/MWxzy/Ohjelmistotuotantoprojekti2>
+- GitHub repository: <https://github.com/LasperKaine/Ohjelmistotuotantoprojekti1>
 - Docker Hub image: `junkkari/temperature-converter-gui:latest`
 - Docker Hub page: <https://hub.docker.com/r/junkkari/temperature-converter-gui>
 - Xming screenshots: `docs/docker-xming-ar.png` and `docs/kubernetes-xming.png`
 - Minikube verification screenshot: `docs/kubernetes-status.png`
-- Localization screenshots: `docs/localization-ar.png` and `docs/localization-ja.png`
+- Localization screenshots: `docs/localization-en.png`, `docs/localization-ar.png`, and `docs/localization-ja.png`
 - Test and coverage screenshots: `docs/surefire-tests.png`, `docs/jacoco-coverage.png`, and `docs/jacoco-default-package.png`
 - Kubernetes manifest: `temperature-converter.yaml`
+- Database schema and localization seed data: `init.sql`
+- Written database-localization justification: `docs/database-localization.md` and Section 3 of this README
 
 The Docker Hub image is published by the Jenkins pipeline using the `dockerhub-credentials` credentials ID.
+
+# Database Localization Approach
+
+## Chosen approach: translation table
+
+The project uses a **translation table** for database localization. Language-independent unit data is stored once in `unit`, and each localized name and short description is stored in `unit_translation`.
+
+```text
+unit
+  unit_id, unit_key, category, symbol, factor_to_base, offset_to_base, display_order
+
+unit_translation
+  unit_id, lang, name, description
+  primary key (unit_id, lang)
+  foreign key (unit_id) -> unit(unit_id)
+```
+
+The database stores five languages (`en`, `fi`, `sv`, `ja`, `ar`) for every unit. The current seed data contains 12 units and 60 translation rows.
+
+## Why this approach was chosen
+
+The translation table keeps the unit facts and the translations separate:
+
+- Conversion factors and symbols are stored only once per unit.
+- Adding a language requires inserting translation rows, not changing the table structure.
+- The unit table does not become wider when a new language is added.
+- The same pattern is used for unit names, descriptions, and history queries.
+- It avoids duplicating conversion factors in every localized row, which would happen with a row-based approach.
+- It avoids creating one table per language.
+
+The static GUI labels are still localized with `.properties` resource bundles. Only localized *data* is stored in the database, which matches the assignment requirement.
+
+## English fallback
+
+`UnitDAO` joins the selected language and English, then uses `COALESCE` to select the first available value:
+
+```sql
+LEFT JOIN unit_translation t
+       ON t.unit_id = u.unit_id AND t.lang = ?
+LEFT JOIN unit_translation e
+       ON e.unit_id = u.unit_id AND e.lang = 'en'
+...
+COALESCE(t.name, e.name) AS name,
+COALESCE(t.description, e.description) AS description
+```
+
+If a translation row or one of its fields is missing, the English value is returned. The same fallback pattern is used by `ConversionDAO` and `MeasurementDAO` for the history lists.
+
+## Measurement tables
+
+The speed calculator writes measurements to three related tables:
+
+- `distance_measurement` stores the distance value and its unit.
+- `time_measurement` stores the time value and its unit.
+- `speed_measurement` references both measurement rows and stores the calculated speed, speed unit, language, and timestamp.
+
+The GUI reads the latest speed calculations back from these tables and displays them in the speed history list. Temperature conversions are stored in `conversion_history` with the input value, source unit, target unit, result, language, and timestamp.
+
+## Verification
+
+- `mvn clean verify` runs the test suite and the JaCoCo coverage checks.
+- `UnitDAOTest` verifies English, Finnish, Swedish, Japanese, and Arabic names and the English fallback.
+- `ConversionDAOTest` and `MeasurementDAOTest` verify that localized names and related measurement rows are stored and read correctly.
+- `DatabaseManagerTest` verifies that `init.sql` is idempotent and creates 12 units and 60 translations.
+
 
 ## Project Structure
 
 ```text
 .
 ├── data/
-│   ├── tempconverter.mv.db
-│   └── tempconverter.trace.db
+│   └── tempconverter.mv.db
 ├── docs/
+│   ├── database-localization.md
 │   ├── docker-xming-ar.png
 │   ├── jacoco-coverage.png
 │   ├── jacoco-default-package.png
 │   ├── kubernetes-status.png
 │   ├── kubernetes-xming.png
 │   ├── localization-ar.png
+│   ├── localization-en.png
 │   ├── localization-ja.png
 │   └── surefire-tests.png
+├── init.sql
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -453,30 +581,38 @@ The Docker Hub image is published by the Jenkins pipeline using the `dockerhub-c
 │   │   │   ├── TempConverterApp.java
 │   │   │   ├── TempConverterController.java
 │   │   │   ├── TemperatureConverter.java
+│   │   │   ├── UnitConverter.java
 │   │   │   └── database/
+│   │   │       ├── ConversionDAO.java
+│   │   │       ├── ConversionRecord.java
 │   │   │       ├── DatabaseManager.java
-│   │   │       ├── TempRecordDAO.java
-│   │   │       └── TemperatureUnitDAO.java
+│   │   │       ├── MeasurementDAO.java
+│   │   │       ├── SpeedRecord.java
+│   │   │       ├── Unit.java
+│   │   │       └── UnitDAO.java
 │   │   └── resources/
-│   │       ├── TempConverter.fxml
 │   │       ├── MessagesBundle.properties
+│   │       ├── MessagesBundle_ar_SA.properties
 │   │       ├── MessagesBundle_en_US.properties
 │   │       ├── MessagesBundle_fi_FI.properties
-│   │       ├── MessagesBundle_sv_SE.properties
 │   │       ├── MessagesBundle_ja_JP.properties
-│   │       └── MessagesBundle_ar_SA.properties
+│   │       ├── MessagesBundle_sv_SE.properties
+│   │       └── TempConverter.fxml
 │   └── test/
 │       └── java/
 │           ├── I18nTest.java
 │           ├── TemperatureConverterTest.java
+│           ├── UnitConverterTest.java
 │           └── database/
+│               ├── ConversionDAOTest.java
 │               ├── DatabaseManagerTest.java
-│               ├── TemperatureUnitDAOTest.java
-│               └── TempRecordDAOTest.java
+│               ├── MeasurementDAOTest.java
+│               └── UnitDAOTest.java
 ├── .dockerignore
+├── .gitignore
 ├── Dockerfile
 ├── Jenkinsfile
 ├── pom.xml
-├── temperature-converter.yaml
-└── README.md
+├── README.md
+└── temperature-converter.yaml
 ```

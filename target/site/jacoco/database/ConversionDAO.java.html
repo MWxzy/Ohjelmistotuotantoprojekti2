@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fi"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConversionDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">OTP1_inclass1_assignment</a> &gt; <a href="index.source.html" class="el_package">database</a> &gt; <span class="el_source">ConversionDAO.java</span></div><h1>ConversionDAO.java</h1><pre class="source lang-java linenums">package database;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L11">public class ConversionDAO {</span>
+
+    private static final String INSERT = &quot;&quot;&quot;
+            INSERT INTO conversion_history
+                (input_value, from_unit_id, to_unit_id, result_value, language_code)
+            VALUES (?, ?, ?, ?, ?)
+            &quot;&quot;&quot;;
+
+    private static final String SELECT_RECENT = &quot;&quot;&quot;
+            SELECT c.conversion_id,
+                   c.input_value,
+                   COALESCE(ft.name, fe.name) AS from_name,
+                   fu.symbol AS from_symbol,
+                   c.result_value,
+                   COALESCE(tt.name, te.name) AS to_name,
+                   tu.symbol AS to_symbol,
+                   c.language_code,
+                   c.created_at
+            FROM conversion_history c
+            JOIN unit fu ON fu.unit_id = c.from_unit_id
+            JOIN unit tu ON tu.unit_id = c.to_unit_id
+            LEFT JOIN unit_translation ft
+                   ON ft.unit_id = fu.unit_id AND ft.lang = ?
+            LEFT JOIN unit_translation fe
+                   ON fe.unit_id = fu.unit_id AND fe.lang = 'en'
+            LEFT JOIN unit_translation tt
+                   ON tt.unit_id = tu.unit_id AND tt.lang = ?
+            LEFT JOIN unit_translation te
+                   ON te.unit_id = tu.unit_id AND te.lang = 'en'
+            ORDER BY c.created_at DESC, c.conversion_id DESC
+            LIMIT ?
+            &quot;&quot;&quot;;
+
+    public long save(
+            double inputValue,
+            int fromUnitId,
+            int toUnitId,
+            double resultValue,
+            String languageCode
+    ) throws SQLException {
+<span class="fc" id="L51">        try (Connection connection = DatabaseManager.getConnection();</span>
+<span class="fc" id="L52">             PreparedStatement statement = connection.prepareStatement(</span>
+                     INSERT,
+                     Statement.RETURN_GENERATED_KEYS
+             )) {
+<span class="fc" id="L56">            statement.setDouble(1, inputValue);</span>
+<span class="fc" id="L57">            statement.setInt(2, fromUnitId);</span>
+<span class="fc" id="L58">            statement.setInt(3, toUnitId);</span>
+<span class="fc" id="L59">            statement.setDouble(4, resultValue);</span>
+<span class="fc" id="L60">            statement.setString(5, languageCode);</span>
+<span class="fc" id="L61">            statement.executeUpdate();</span>
+
+<span class="fc" id="L63">            try (ResultSet keys = statement.getGeneratedKeys()) {</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                if (keys.next()) {</span>
+<span class="fc" id="L65">                    return keys.getLong(1);</span>
+                }
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">            }</span>
+
+<span class="nc" id="L69">            throw new SQLException(&quot;No generated key returned for conversion.&quot;);</span>
+        }
+    }
+
+    public List&lt;ConversionRecord&gt; findRecent(int limit, String language) throws SQLException {
+<span class="fc" id="L74">        try (Connection connection = DatabaseManager.getConnection();</span>
+<span class="fc" id="L75">             PreparedStatement statement = connection.prepareStatement(SELECT_RECENT)) {</span>
+<span class="fc" id="L76">            statement.setString(1, language);</span>
+<span class="fc" id="L77">            statement.setString(2, language);</span>
+<span class="fc" id="L78">            statement.setInt(3, limit);</span>
+
+<span class="fc" id="L80">            try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="fc" id="L81">                List&lt;ConversionRecord&gt; records = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">                while (resultSet.next()) {</span>
+<span class="fc" id="L83">                    records.add(new ConversionRecord(</span>
+<span class="fc" id="L84">                            resultSet.getLong(&quot;conversion_id&quot;),</span>
+<span class="fc" id="L85">                            resultSet.getDouble(&quot;input_value&quot;),</span>
+<span class="fc" id="L86">                            resultSet.getString(&quot;from_name&quot;),</span>
+<span class="fc" id="L87">                            resultSet.getString(&quot;from_symbol&quot;),</span>
+<span class="fc" id="L88">                            resultSet.getDouble(&quot;result_value&quot;),</span>
+<span class="fc" id="L89">                            resultSet.getString(&quot;to_name&quot;),</span>
+<span class="fc" id="L90">                            resultSet.getString(&quot;to_symbol&quot;),</span>
+<span class="fc" id="L91">                            resultSet.getString(&quot;language_code&quot;),</span>
+<span class="fc" id="L92">                            resultSet.getTimestamp(&quot;created_at&quot;).toLocalDateTime()</span>
+                    ));
+                }
+<span class="fc" id="L95">                return records;</span>
+            }
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
