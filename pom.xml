@@ -16,6 +16,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
         <javafx.platform>win</javafx.platform>
+        <sonar.projectKey>otp1-temperature-converter</sonar.projectKey>
+        <sonar.projectName>Temperature Converter</sonar.projectName>
+        <!-- The Maven scanner reads Sonar settings from the POM, not from
+             sonar-project.properties (that file is used by SonarScanner CLI).
+             Keep these values aligned with sonar-project.properties. -->
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions>src/main/java/TempConverterApp.java,src/main/java/Launcher.java,src/main/java/TempConverterController.java</sonar.coverage.exclusions>
     </properties>
 
     <dependencies>
@@ -130,6 +137,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>5.1.0.4751</version>
             </plugin>
 
             <plugin>

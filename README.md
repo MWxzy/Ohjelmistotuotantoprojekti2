@@ -54,6 +54,7 @@ The application stores conversion records and speed measurements in a local H2 d
 
 - Apache Maven 3.9 or newer
 - Java Development Kit 17
+- SonarQube Community Build 26.11 and SonarScanner CLI 8.4, for local static analysis
 - Docker
 - Jenkins
 - Minikube and kubectl
@@ -474,6 +475,12 @@ The `docs` directory contains screenshots produced from the final build:
 
 ![JaCoCo default package](docs/jacoco-default-package.png)
 
+### SonarQube analysis of the Week 3 in-class assignment
+
+The screenshot shows the Week 3 Temperature Converter (in-class assignment 6) analyzed in SonarQube Community Build.
+
+![SonarQube dashboard](docs/sonarqube-dashboard.png)
+
 ## 7. In-class Assignment 6 Submission
 
 - GitHub repository: <https://github.com/LasperKaine/Ohjelmistotuotantoprojekti1>
@@ -488,6 +495,51 @@ The `docs` directory contains screenshots produced from the final build:
 - Written database-localization justification: `docs/database-localization.md` and Section 3 of this README
 
 The Docker Hub image is published by the Jenkins pipeline using the `dockerhub-credentials` credentials ID.
+
+## 8. In-class Assignment 7 Submission: SonarQube
+
+SonarQube Community Build 26.11 and SonarScanner CLI 8.4 are installed locally and connected to this Maven project.
+
+### Configuration
+
+- Server: `http://localhost:9000`, started with `C:\SonarQube\bin\windows-x86-64\StartSonar.bat`
+- Project key: `otp1-temperature-converter`
+- Project settings: `sonar-project.properties` for SonarScanner CLI, plus the matching `sonar.*` properties in `pom.xml` for the Maven scanner
+- Analysis token: stored only in the `SONAR_TOKEN` user environment variable, never in the repository
+- Coverage report: JaCoCo XML at `target/site/jacoco/jacoco.xml`; the JavaFX entry points and controller are excluded from coverage in both JaCoCo and SonarQube
+
+The administrator password was changed from the default during the first login. The password is not stored in the repository.
+
+The laptop has less than the 10% free disk space that SonarQube requires for Elasticsearch. For this local, evaluation-only instance, the check is disabled with `sonar.search.javaAdditionalOpts=-Dcluster.routing.allocation.disk.threshold_enabled=false` in `C:\SonarQube\conf\sonar.properties`.
+
+### Running the analysis
+
+Option A, SonarScanner CLI:
+
+```powershell
+mvn clean verify
+sonar-scanner
+```
+
+Run `mvn clean verify` first so that the compiled classes and the JaCoCo XML report are available.
+
+Option B, Maven:
+
+```powershell
+mvn clean verify sonar:sonar `
+  "-Dsonar.token=$env:SONAR_TOKEN" `
+  "-Dsonar.host.url=http://localhost:9000"
+```
+
+### Results
+
+- Quality gate: passed
+- Coverage: 91.8% overall, 94.6% line coverage on the testable core
+- Bugs: 0, vulnerabilities: 0, code smells: 0, duplicated lines: 0.0%
+- 70 automated tests, all passing
+- 1.1k lines of code analyzed
+
+The `java:S2115` finding about the passwordless embedded H2 database is suppressed on `DatabaseManager.getConnection` with a justification, because the database is a local file and is never exposed over a network.
 
 # Database Localization Approach
 

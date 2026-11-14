@@ -20,33 +20,37 @@ import java.sql.SQLException;
     private static final String USER = &quot;sa&quot;;
     private static final String PASS = &quot;&quot;;
 
+    // The embedded local H2 file database is protected by operating-system file
+    // permissions and is never exposed over a network, so it does not need a
+    // separate database password (SonarQube rule java:S2115 is not applicable).
+    @SuppressWarnings(&quot;java:S2115&quot;)
     public static Connection getConnection() throws SQLException {
-<span class="fc" id="L24">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
-<span class="fc" id="L25">        return DriverManager.getConnection(url, USER, PASS);</span>
+<span class="fc" id="L28">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
+<span class="fc" id="L29">        return DriverManager.getConnection(url, USER, PASS);</span>
     }
 
     public static void initializeDatabase() {
-<span class="fc" id="L29">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
+<span class="fc" id="L33">        String url = System.getProperty(&quot;h2.url&quot;, DEFAULT_DB_URL);</span>
 
         try {
-<span class="pc bpc" id="L32" title="2 of 4 branches missed.">            if (url.startsWith(&quot;jdbc:h2:./&quot;) || url.startsWith(&quot;jdbc:h2:file:&quot;)) {</span>
-<span class="nc" id="L33">                Files.createDirectories(Path.of(&quot;data&quot;));</span>
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">            if (url.startsWith(&quot;jdbc:h2:./&quot;) || url.startsWith(&quot;jdbc:h2:file:&quot;)) {</span>
+<span class="nc" id="L37">                Files.createDirectories(Path.of(&quot;data&quot;));</span>
             }
 
-<span class="fc" id="L36">            try (Connection connection = getConnection();</span>
-<span class="fc" id="L37">                 InputStream input = DatabaseManager.class.getResourceAsStream(&quot;/init.sql&quot;)) {</span>
+<span class="fc" id="L40">            try (Connection connection = getConnection();</span>
+<span class="fc" id="L41">                 InputStream input = DatabaseManager.class.getResourceAsStream(&quot;/init.sql&quot;)) {</span>
 
-<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                if (input == null) {</span>
-<span class="nc" id="L40">                    throw new IllegalStateException(&quot;Missing classpath resource: /init.sql&quot;);</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">                if (input == null) {</span>
+<span class="nc" id="L44">                    throw new IllegalStateException(&quot;Missing classpath resource: /init.sql&quot;);</span>
                 }
 
-<span class="fc" id="L43">                try (Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {</span>
-<span class="fc" id="L44">                    RunScript.execute(connection, reader);</span>
+<span class="fc" id="L47">                try (Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {</span>
+<span class="fc" id="L48">                    RunScript.execute(connection, reader);</span>
                 }
             }
-<span class="nc" id="L47">        } catch (IOException | SQLException exception) {</span>
-<span class="nc" id="L48">            throw new IllegalStateException(&quot;Unable to initialize the database&quot;, exception);</span>
-<span class="fc" id="L49">        }</span>
-<span class="fc" id="L50">    }</span>
+<span class="nc" id="L51">        } catch (IOException | SQLException exception) {</span>
+<span class="nc" id="L52">            throw new IllegalStateException(&quot;Unable to initialize the database&quot;, exception);</span>
+<span class="fc" id="L53">        }</span>
+<span class="fc" id="L54">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
