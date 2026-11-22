@@ -39,7 +39,7 @@ pipeline {
                         bat """
                             sonar-scanner ^
                               -Dsonar.projectKey=${env.SONAR_PROJECT_KEY} ^
-                              -Dsonar.projectName=Temperature Converter ^
+                              -Dsonar.projectName=Temperature-Converter ^
                               -Dsonar.projectVersion=1.0-SNAPSHOT ^
                               -Dsonar.host.url=%SONAR_HOST_URL% ^
                               -Dsonar.token=%SONAR_TOKEN%
