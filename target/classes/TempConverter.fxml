@@ -177,4 +177,7 @@
             </VBox>
         </Tab>
     </TabPane>
+
+    <Label text="Kasper Laine"
+           style="-fx-text-fill: #334155; -fx-font-size: 14px; -fx-font-weight: bold;"/>
 </VBox>

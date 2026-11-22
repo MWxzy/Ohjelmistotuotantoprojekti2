@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: database.ConversionDAOTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.446 s -- in database.ConversionDAOTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.634 s -- in database.ConversionDAOTest

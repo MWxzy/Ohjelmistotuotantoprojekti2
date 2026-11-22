@@ -1,6 +1,0 @@
-projectKey=otp1-temperature-converter
-serverUrl=http://localhost:9000
-serverVersion=26.11.0.134175
-dashboardUrl=http://localhost:9000/dashboard?id=otp1-temperature-converter
-ceTaskId=78798796-0dbc-41ef-a1d4-639f93df7ee7
-ceTaskUrl=http://localhost:9000/api/ce/task?id=78798796-0dbc-41ef-a1d4-639f93df7ee7
