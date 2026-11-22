@@ -8,8 +8,11 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'junkkari/temperature-converter-gui:latest'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        SONARQUBE_SERVER = 'SonarQubeServer'
+        SONAR_PROJECT_KEY = 'otp1-temperature-converter'
         MAVEN_OPTS = '-Dfile.encoding=UTF-8'
-        PATH = "C:\\Users\\kaspe\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
+        JAVA_HOME = 'C:\\Program Files\\Microsoft\\jdk-21.0.12.101-hotspot'
+        PATH = "C:\\sonarscanner\\bin;C:\\Users\\kaspe\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
     }
 
     stages {
@@ -29,9 +32,42 @@ pipeline {
             steps { jacoco() }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv("${env.SONARQUBE_SERVER}") {
+                        bat """
+                            sonar-scanner ^
+                              -Dsonar.projectKey=${env.SONAR_PROJECT_KEY} ^
+                              -Dsonar.projectName=Temperature Converter ^
+                              -Dsonar.projectVersion=1.0-SNAPSHOT ^
+                              -Dsonar.host.url=%SONAR_HOST_URL% ^
+                              -Dsonar.token=%SONAR_TOKEN%
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        def qualityGate = bat(returnStdout: true, script: '''
+                            powershell -NoProfile -Command "$r = Invoke-RestMethod -Uri 'http://localhost:9000/api/qualitygates/project_status?projectKey=otp1-temperature-converter' -Headers @{ Authorization = 'Bearer ' + $env:SONAR_TOKEN }; $r.projectStatus.status"
+                        ''').trim()
+                        echo "SonarQube quality gate: ${qualityGate}"
+                        if (qualityGate != 'OK') {
+                            error "SonarQube quality gate failed: ${qualityGate}"
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
-                bat "docker build --no-cache -t ${env.DOCKER_IMAGE} ."
+                bat "docker build -t ${env.DOCKER_IMAGE} ."
             }
         }
 
