@@ -51,16 +51,8 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-                    script {
-                        def qualityGate = bat(returnStdout: true, script: '''
-                            powershell -NoProfile -Command "$r = Invoke-RestMethod -Uri 'http://localhost:9000/api/qualitygates/project_status?projectKey=otp1-temperature-converter' -Headers @{ Authorization = 'Bearer ' + $env:SONAR_TOKEN }; $r.projectStatus.status"
-                        ''').trim()
-                        echo "SonarQube quality gate: ${qualityGate}"
-                        if (qualityGate != 'OK') {
-                            error "SonarQube quality gate failed: ${qualityGate}"
-                        }
-                    }
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
