@@ -541,6 +541,68 @@ mvn clean verify sonar:sonar `
 
 The `java:S2115` finding about the passwordless embedded H2 database is suppressed on `DatabaseManager.getConnection` with a justification, because the database is a local file and is never exposed over a network.
 
+## 9. Week 5 In-class Assignment: SonarQube in the Jenkins Pipeline
+
+### Goal
+
+Week 5 integrates the SonarQube analysis into the Jenkins pipeline so that every build runs tests, coverage, static analysis, and the quality gate before the Docker image is built.
+
+### Pipeline stages
+
+The `Jenkinsfile` in the repository root runs the following stages:
+
+1. Checkout
+2. Build and test (`mvn -B clean verify`)
+3. Publish test results (JUnit)
+4. Publish coverage report (JaCoCo)
+5. SonarQube Analysis (`sonar-scanner` through `withSonarQubeEnv`)
+6. Quality Gate
+7. Build Docker Image
+8. Verify Image
+9. Deploy to Docker Hub
+
+The analysis stage uses the Jenkins `SonarQubeServer` configuration and the `SONAR_TOKEN` credential. The token is bound with `withCredentials` and never appears in the repository.
+
+SonarQube Community Build rejects loopback webhook URLs, so `waitForQualityGate` cannot be used on this local setup. The `Quality Gate` stage instead polls `/api/qualitygates/project_status` with the token and fails the build unless the status is `OK`.
+
+### Build result
+
+- Jenkins job: `Kasper_Laine_Week5_SonarQube`
+- Build: `#10`, result `SUCCESS`, duration 6 min 40 s
+- SonarQube quality gate: `OK`
+- 70 automated tests, all passing
+- Image: `junkkari/temperature-converter-gui:latest`
+- Pushed digest: `sha256:a5fb859572d6775615f1e2403a14aa96322f88868af885cc40ff64f531674ef3`
+
+### Screenshots
+
+Jenkins pipeline, all stages green:
+
+![Jenkins pipeline, Week 5](docs/jenkins-pipeline-week5.png)
+
+SonarQube dashboard for `otp1-temperature-converter`:
+
+![SonarQube dashboard, Week 5](docs/sonarqube-dashboard-week5.png)
+
+The image built by Jenkins, started under Xming. The student name is shown at the bottom of the window:
+
+![Temperature Converter under Xming, Week 5](docs/xming-week5.png)
+
+The Xming screenshot was produced by running the image built in the pipeline:
+
+```powershell
+docker run --rm -d --name tempconv-week5 `
+  -e DISPLAY=host.docker.internal:0.0 `
+  -e JAVA_TOOL_OPTIONS=-Dprism.order=sw `
+  junkkari/temperature-converter-gui:latest
+```
+
+### Local SonarQube notes
+
+- The server runs at `http://localhost:9000` with the embedded evaluation database.
+- `sonar.forceAuthentication` is enabled, so anonymous users cannot browse the dashboard; the analysis itself uses `SONAR_TOKEN`.
+- The Elasticsearch free-disk check is disabled locally because the laptop has less than the 10% free space the check requires.
+
 # Database Localization Approach
 
 ## Chosen approach: translation table
@@ -617,12 +679,15 @@ The GUI reads the latest speed calculations back from these tables and displays 
 │   ├── docker-xming-ar.png
 │   ├── jacoco-coverage.png
 │   ├── jacoco-default-package.png
+│   ├── jenkins-pipeline-week5.png
 │   ├── kubernetes-status.png
 │   ├── kubernetes-xming.png
 │   ├── localization-ar.png
 │   ├── localization-en.png
 │   ├── localization-ja.png
-│   └── surefire-tests.png
+│   ├── sonarqube-dashboard-week5.png
+│   ├── surefire-tests.png
+│   └── xming-week5.png
 ├── init.sql
 ├── src/
 │   ├── main/
