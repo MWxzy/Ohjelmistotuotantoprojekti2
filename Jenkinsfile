@@ -51,8 +51,26 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    script {
+                        // SonarQube Community Build rejects loopback webhook URLs,
+                        // so poll the quality gate status through the web API.
+                        def status = 'NONE'
+                        for (int attempt = 0; attempt < 12; attempt++) {
+                            bat '''
+                                powershell -NoProfile -Command "(Invoke-RestMethod -Uri 'http://localhost:9000/api/qualitygates/project_status?projectKey=otp1-temperature-converter' -Headers @{ Authorization = 'Bearer ' + $env:SONAR_TOKEN }).projectStatus.status" > sonar-quality-gate.txt
+                            '''
+                            status = readFile('sonar-quality-gate.txt').trim()
+                            if (status == 'OK' || status == 'ERROR') {
+                                break
+                            }
+                            sleep(time: 5, unit: 'SECONDS')
+                        }
+                        echo "SonarQube quality gate: ${status}"
+                        if (status != 'OK') {
+                            error "SonarQube quality gate failed: ${status}"
+                        }
+                    }
                 }
             }
         }
